@@ -43,7 +43,10 @@ object Task1 extends App {
             case left :: right :: rem => op(right, left) :: rem
           }
         }
-        stack.head
+        stack match {
+          case result :: Nil => result
+          case _ => throw new Exception()
+        }
     }
     def term: Parser[List[Expression]] = rep(num)
     def num: Parser[Expression] = floatingPointNumber ^^ (x => DoubleConstant(x.toDouble))
@@ -58,7 +61,7 @@ object Task1 extends App {
   }
 
   val parser = new ReversedPolishParser
-  val input = "5 6 7 * - 2 +"
+  val input = "5 6 7 * - 2 + 2"
   val expression = parser.performParsing(input).get
   println(expression.evaluate().get)
 }
