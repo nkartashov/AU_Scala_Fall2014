@@ -1,11 +1,14 @@
-import _root_.Nat.{Succ, Nat}
-
 object HList {
 
-  trait Fold[-Elem, Value] {
-    type Apply[N <: Elem, -Acc <: Value] <: Value
+  trait Fold[Elem, Value] {
+    type Apply <: Value
 
-    def apply[N <: Elem, Acc <: Value](n: N, acc: Acc): Apply[N, Acc]
+    def apply[N <: Elem, Acc <: Value](n: N, acc: Acc): Apply
+  }
+
+  case object Length extends Fold[Any, Int] {
+    override type Apply = Int
+    override def apply[N <: Any, Acc <: Int](n: N, acc: Acc): Apply = acc + 1
   }
 
   sealed trait HList {
@@ -16,6 +19,8 @@ object HList {
     type Foldr[Value, F <: Fold[Any, Value], I <: Value] <: Value
 
     def foldr[Value, F <: Fold[Any, Value], I <: Value](f: F, i: I): Foldr[Value, F, I]
+
+    def length = foldr(Length, 0)
   }
 
     sealed class HNil extends HList {
@@ -37,7 +42,7 @@ object HList {
 
       override def toString = head + " :: " + tail
 
-      override type Foldr[Value, F <: Fold[Any, Value], I <: Value] = F#Apply[Any, T#Foldr[Value, F, I]]
+      override type Foldr[Value, F <: Fold[Any, Value], I <: Value] = F#Apply
 
       override def foldr[Value, F <: Fold[Any, Value], I <: Value](f: F, i: I): Foldr[Value, F, I] =
         f[Any, Value](head, tail.foldr[Value, F, I](f, i))
@@ -53,5 +58,6 @@ object HList {
       println(list3)
       println((1 :: HNil) ++ HNil)
       println(HNil ++ ("foz" :: HNil))
+      println(list3.length)
     }
   }
