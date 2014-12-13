@@ -1,48 +1,57 @@
-
+import _root_.Nat.{Succ, Nat}
 
 object HList {
 
+  trait Fold[-Elem, Value] {
+    type Apply[N <: Elem, -Acc <: Value] <: Value
+
+    def apply[N <: Elem, Acc <: Value](n: N, acc: Acc): Apply[N, Acc]
+  }
+
   sealed trait HList {
-    def ++[L <: HList](l: L): HList = l
+    def ::[E](e: E): HList
+
+    def ++[L <: HList](l: L): HList
+
+    type Foldr[Value, F <: Fold[Any, Value], I <: Value] <: Value
+
+    def foldr[Value, F <: Fold[Any, Value], I <: Value](f: F, i: I): Foldr[Value, F, I]
   }
 
-  sealed case class HCons[H, T <: HList](head: H, tail: T) extends HList {
-    def ::[E](v: E) = HCons(v, this)
+    sealed class HNil extends HList {
+      def ::[T](v: T) = HCons(v, this)
 
-    override def ++[L <: HList](l: L) = HCons(head, tail ++ l)
+      override def ++[L <: HList](l: L): HList = l
 
-    override def toString = head + " :: " + tail
-  }
+      override def toString = "HNil"
 
-  sealed class HNil extends HList {
-    def ::[T](v: T) = HCons(v, this)
+      override type Foldr[Value, F <: Fold[Any, Value], I <: Value] = I
 
-    override def toString = "Nil"
-  }
+      override def foldr[Value, F <: Fold[Any, Value], I <: Value](f: F, i: I): Foldr[Value, F, I] = i
+    }
 
-  object HNil extends HNil
+    sealed case class HCons[H, T <: HList](head: H, tail: T) extends HList {
+      def ::[E](v: E) = HCons(v, this)
 
-  object HList {
-    type ::[H, T <: HList] = HCons[H, T]
-    type ++[L1 <: HList, L2 <: HList] = HList
-    val :: = HCons
+      def ++[L <: HList](l: L) = head :: tail ++ l
 
-    def indexAt2ofT[A, B, T <: HList](x: (A :: B :: T)) = x match {
-      case a :: b :: _ => b
+      override def toString = head + " :: " + tail
+
+      override type Foldr[Value, F <: Fold[Any, Value], I <: Value] = F#Apply[Any, T#Foldr[Value, F, I]]
+
+      override def foldr[Value, F <: Fold[Any, Value], I <: Value](f: F, i: I): Foldr[Value, F, I] =
+        f[Any, Value](head, tail.foldr[Value, F, I](f, i))
+    }
+
+    case object HNil extends HNil
+
+    def main(args: Array[String]) {
+      val list1 = "foo" :: 1 :: 1.0 :: HNil
+      val list2 = "bam" :: HNil
+      val list3 = list1 ++ list2
+
+      println(list3)
+      println((1 :: HNil) ++ HNil)
+      println(HNil ++ ("foz" :: HNil))
     }
   }
-
-  def main(args: Array[String]) {
-    import HList._
-
-
-    val list1 = "foo" :: 1 :: 1.0 :: HNil
-    val list2 = "bam" :: HNil
-    val list3 = list1 ++ list2
-
-    println(indexAt2ofT(list1))
-    println(list3)
-    println((1 :: HNil) ++ HNil)
-    println(HNil ++ ("foz" :: HNil))
-  }
-}
