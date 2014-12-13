@@ -1,4 +1,4 @@
-object HList {
+object HList extends App {
 
   trait Fold[Elem, Value] {
     type Apply <: Value
@@ -51,14 +51,13 @@ object HList {
 
   case object HNil extends HNil
 
-  def main(args: Array[String]) {
-    val list1 = "foo" :: 1 :: 1.0 :: HNil
-    val list2 = "bam" :: HNil
-    val list3 = list1 ++ list2
 
-    println(list3)
-    println((1 :: HNil) ++ HNil)
-    println(HNil ++ ("foz" :: HNil))
-    println(list3.length)
-  }
+  val list1 = "foo" :: 1 :: 1.0 :: HNil
+  val list2 = "bam" :: HNil
+  val list3 = list1 ++ list2
+
+  println(list3)
+  println((1 :: HNil) ++ HNil)
+  println(HNil ++ ("foz" :: HNil))
+  println(list3.length)
 }
