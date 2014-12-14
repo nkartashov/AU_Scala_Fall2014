@@ -10,7 +10,7 @@
     text)
   )
 
-(def cube-anonymous (fn [x] (* x x x)))
+(def cube-anonymous #(* %1 %1 %1))
 
 (defn fun4
   [seq1 seq2]
@@ -18,12 +18,12 @@
 
 (defn fun5
   [elem input_seq]
-  (some (fn [x] (== x elem)) input_seq))
+  (some #(== %1 elem) input_seq))
 
 (defn fun6
   [seq1 seq2]
   (let [zipped (map vector seq1 seq2)]
-    (remove (fn [x] (apply == x)) zipped)))
+    (remove (fn [[a b]] (== a b)) zipped)))
 
 (defn fun7
   [elem n]
