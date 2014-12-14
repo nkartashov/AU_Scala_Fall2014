@@ -25,7 +25,7 @@ object HList extends App {
   }
 
   sealed class HNil extends HList {
-    def ::[T](v: T) = HCons(v, this)
+    override def ::[T](v: T) = HCons(v, this)
 
     override def ++[L <: HList](l: L): HList = l
 
@@ -37,9 +37,9 @@ object HList extends App {
   }
 
   sealed case class HCons[H, T <: HList](head: H, tail: T) extends HList {
-    def ::[E](v: E) = HCons(v, this)
+    override def ::[E](v: E) = HCons(v, this)
 
-    def ++[L <: HList](l: L) = head :: tail ++ l
+    override def ++[L <: HList](l: L) = head :: tail ++ l
 
     override def toString = head + " :: " + tail
 
