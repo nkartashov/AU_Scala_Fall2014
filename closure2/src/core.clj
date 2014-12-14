@@ -10,34 +10,13 @@
     )
   )
 
-(defn split-names-values
-  [bindings]
-  (cons (take-nth 2 bindings)
-        (cons (take-nth 2 (rest bindings)) nil))
-  )
-
-(defmacro split-names-values-macro
-  [input]
-  (split-names-values input))
-
 (defmacro my-fn
   [vars & body]
   `(fn ~vars ~@body))
 
+(defmacro my-let
+  [bindings & body]
+  `((my-fn ~(vec (take-nth 2 bindings)) ~@body) ~@(take-nth 2 (rest bindings))))
 
-(println (macroexpand '(my-fn [a b] (println a) (println b))))
-
-(def x (my-fn [a] (println a)))
-(x 10)
-
-;((my-fn [a] ((println a) (println 100))) 10)
-;(println (my-fn [a] ((println a) (println 100))))
-
-
-
-;(defmacro my-let
-;  [bindings & body]
-;  `((fn
-;      (vec (first (split-names-values-macro ~bindings)))
-;      (do ~@body)) (second (split-names-values-macro ~bindings)))
-;  )
+(my-let [a 2] (println a))
+(my-let [c 3 a 2 b 3] (println (+ a b c) (println (* b c a))))
